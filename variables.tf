@@ -7,7 +7,7 @@ variable "location" {
 }
 
 variable "vm_name" {
-    default = "vm_with_docker"
+    default = "vm-with-docker"
 }
 
 variable "vnet_address_space" {
@@ -19,7 +19,7 @@ variable "subnet_address_space" {
 }
 
 variable "admin_username" {
-    default = "ccseyhan"
+    default = "oguzhan"
 }
 
 variable "admin_password" {

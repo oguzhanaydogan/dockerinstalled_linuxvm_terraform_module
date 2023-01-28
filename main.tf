@@ -82,8 +82,8 @@ resource "azurerm_virtual_machine" "vm1" {
   os_profile_linux_config {
     disable_password_authentication = true
     ssh_keys {
-      path = "/home/ccseyhan/.ssh/authorized_keys"
-      key_data = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCYBkJ3y1tV6p8KApdM+Z97qYqO8QMTdL66B3ZRFA/MQ6q6FutPI4uyCTWbSB3z6vQU0OqfkJhSRElgUbBVM8aCa+we5CSa9Cr5AuM2MCJlelZTnfBAOUY1CaIRlvXB5jNLEplRpY2wnh2S6yRMbD72U6cE/zPW0Zc+0uu2ffzdy2wxhc0vAoLn3h5OwgZ1NoGsZMPQYZyPuxlfeShaC7EXqRDXvcRZKQktElnSQcyRN14glgt+AwYUFYF7vjxju2HnVsgJi8saPtEKvYETwkwmhs9KZJOavxI8+hveoSaFN5zMhuFIVDAo5G1LtmsDir7ibAGG4XZuuCMLhlGUxZLBJt7+AvG7AnjJnigBnAhaC1LGG3HKpkZ/YxQaZnv2vWiWqohD+FTY8uDzjug2eK0Y+hNyKoib1KfIClXoKfAINUn5RH5zxWxFsBALbVIcIR4hMY7Y0Ul5rE+eAOjai9VS7nkNci6QOO7tnbiS/VaZiqevlOrJJoGG0U2D37lLLKukNc1KXHAU108iL/TuA77s5NA/rQykOxn1LAlL8Z7LcUV6fKEg4NaXOxiCaC6zU1tZBy1okcSfOK0fSyw6Ymq2/QJsjdEIkdQz4SEyWotQLPLIPZKJHHle+NMyfm+7tkaINdm5FMYZi4bQ8L34ctgVXA2RRJuSZPE+p2y8qh8I5Q=="
+      path = "/home/oguzhan/.ssh/authorized_keys"
+      key_data = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChzaZHLIqKgG3xb2+XqnXNlYmkBvd6DMC5S1Z+ezee/sdj4qTQQYMSQxv0/nNIdZ6D/Uz0laGmKWbHKcocGnpcumTHkIceIBp+OTSJYUH2Y2thwQ0rpXdukOXNHkj+2CxYcHmcteK3U6trTohHtIXfyETQ7EeiULolAvNEywtHpE2qHWsNRK15+1dT4/27WJPidlh792I3DWGgwOiuJhjzpQ4SONB6sex1kUfX01J0VoVf2w9t/kIY7sEjOflgyVs3tMncsUO/KyGpEWn4ljUKxLMWP8Wvi0vJrRXh1w5yBeWv/xofenMEX1b2K5OWKq/Z8uhbjPvaX2Klrktj1MIz5LyZdmMCCWcFNqRcnI7h8IVKgd6BIs3QJeeNpi1n2euTFEtuXdZUFGVuODDPXqZk7GaNlX6jx6qMXeVA8WIICJGW1XzdWBs4iVHZH9mnfyMZAKhYF70tfBSf0sU35KAHoXtjMOzVBqgfv2ouuB954kN083wc8HIq1kjInDcEf+w/KWq/kuX4cXx1aQfFcO0VCGCc4/3WbB2niHsoGKAruPLWjbvOmFbzNqM9H2jZbOfcd1K8DqwTQNeTkLvFLali8OnvPOMA8jjBbS6DuQVYR9+fD45HhriZI/y0t3/uEQPKgFbiRaWczikkCj5z8waBzJj0y4AJo6CHqSqG73VSew== oguzhan.aydogan@deop.ca"
     }
 
   }
@@ -92,6 +92,10 @@ resource "azurerm_virtual_machine" "vm1" {
 
 data "template_file" "userdata" {
   template = file("${abspath(path.module)}/userdata.sh")
+}
+resource "azurerm_network_interface_security_group_association" "nic1" {
+  network_interface_id      = azurerm_network_interface.main.id
+  network_security_group_id = azurerm_network_security_group.nsg1.id
 }
 
 resource "azurerm_network_security_group" "nsg1" {
@@ -110,8 +114,19 @@ resource "azurerm_network_security_group" "nsg1" {
         source_address_prefix      = "*"
         destination_address_prefix = "*"
     }
-}
 
+security_rule {
+        name                       = "AllowJenkins"
+        priority                   = 120
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "8080"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+    }
+}
 # resource "azurerm_virtual_machine_extension" "ssh" {
 
 #   name                         = "ssh"
